@@ -6,7 +6,6 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "scripts" / "discover-identity.py"
 SPEC = importlib.util.spec_from_file_location("edgewatch_discover_identity", SCRIPT)

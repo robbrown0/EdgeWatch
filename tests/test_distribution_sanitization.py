@@ -7,7 +7,8 @@ from pathlib import Path
 class DistributionSanitizationTests(unittest.TestCase):
     def test_public_distribution_contains_no_known_private_literals(self) -> None:
         root = Path(__file__).resolve().parents[1]
-        decode = lambda value: bytes.fromhex(value).decode("utf-8")
+        def decode(value: str) -> str:
+            return bytes.fromhex(value).decode("utf-8")
         banned = (
             decode("52 6f 62 20 42 72 6f 77 6e"),
             decode("2f 68 6f 6d 65 2f 72 6f 62"),
