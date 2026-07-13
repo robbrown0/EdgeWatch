@@ -1,4 +1,4 @@
-# EdgeWatch 0.5.4 architecture
+# EdgeWatch 0.5.5 architecture
 
 ## Goals
 

@@ -1,8 +1,17 @@
 # Changelog
 
+## 0.5.5 - 2026-07-13
+
+- Added exact Plex client identifier correlation for conservative connection profiles.
+- Added safe Plex user, client, playback, and playback-session identifiers to session snapshots.
+- Added confirmed account context and evidence to remote connection UI.
+- Added ambiguity safeguards so labels, usernames, and IP addresses alone never establish identity.
+- Added Node.js to installer prerequisites for frontend behavior tests.
+- Retained the 0.5.4 map route persistence, traffic reconciliation, private site overlay, and rollback fixes.
+
 All notable EdgeWatch changes are documented here.
 
-## 0.5.4 - 2026-07-13
+## 0.5.5 - 2026-07-13
 
 ### Added
 

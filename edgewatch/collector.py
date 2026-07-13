@@ -247,7 +247,7 @@ def _safe_url_check(check: URLCheck) -> dict[str, object]:
     request = urllib.request.Request(
         check.url,
         headers={
-            "User-Agent": "EdgeWatch/0.5.4",
+            "User-Agent": "EdgeWatch/0.5.5",
             "Accept": "*/*",
             "Connection": "close",
         },
@@ -1995,11 +1995,11 @@ class Collector:
             wireguard = wireguard_future.result()
             plex = plex_future.result()
 
-        connections = annotate_connection_profiles(
+        plex_sessions = plex.get("sessions", []) if isinstance(plex, dict) else []
+        annotate_connection_profiles(
             connections,
-            plex,
+            plex_sessions if isinstance(plex_sessions, list) else [],
         )
-        network["connections"] = connections
 
         if now_monotonic - self.last_url_checks_at >= self.config.security_interval_seconds or not self.last_url_checks:
             self.last_url_checks = self._url_checks()
@@ -2071,7 +2071,7 @@ class Collector:
             system, security, network, wireguard, url_checks, plex, linode, geoip_status, dns_alignment
         )
         snapshot: dict[str, object] = {
-            "version": "0.5.4",
+            "version": "0.5.5",
             "generated_at": now.isoformat(),
             "generated_epoch": now_epoch,
             "display_timezone": self.config.timezone,

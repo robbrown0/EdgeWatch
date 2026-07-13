@@ -147,7 +147,7 @@ if (!offscreenRouteExists) {
             "map.getSource(SOURCE_IDS.routes)?.setData(collections.routes)",
             map_js,
         )
-        self.assertIn('/static/maplibre-edgewatch.js?v=0.5.4', html)
+        self.assertIn('/static/maplibre-edgewatch.js?v=0.5.5', html)
 
 
     def test_remote_stream_reconciliation_and_client_drilldowns(self) -> None:
@@ -169,6 +169,10 @@ if (!offscreenRouteExists) {
         self.assertIn("local stream", js)
         self.assertIn("security-finding-evidence .insight-kv", css)
         self.assertIn("client-list-card", css)
+        self.assertIn("function peerConnectionProfile", js)
+        self.assertIn("Confirmed Plex identity", js)
+        self.assertIn("No account identity is asserted", js)
+        self.assertIn("connection-profile-card", css)
 
     def test_javascript_ids_exist_in_html(self) -> None:
         root = Path(__file__).resolve().parents[1] / "edgewatch" / "static"

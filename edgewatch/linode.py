@@ -21,7 +21,7 @@ def _get_json(
         headers={
             "Authorization": f"Bearer {token}",
             "Accept": "application/json",
-            "User-Agent": "EdgeWatch/0.5.4",
+            "User-Agent": "EdgeWatch/0.5.5",
             "Connection": "close",
         },
         method="GET",

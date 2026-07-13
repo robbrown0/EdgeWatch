@@ -152,7 +152,7 @@ def create_app(config_path: str | None = None) -> FastAPI:
 
     app = FastAPI(
         title="EdgeWatch",
-        version="0.5.4",
+        version="0.5.5",
         docs_url=None,
         redoc_url=None,
         openapi_url=None,
@@ -320,7 +320,7 @@ def create_app(config_path: str | None = None) -> FastAPI:
         return JSONResponse(
             {
                 "status": "ok" if healthy else "degraded",
-                "version": "0.5.4",
+                "version": "0.5.5",
                 "snapshot_exists": snapshot_exists,
                 "snapshot_age_seconds": snapshot_age,
             },

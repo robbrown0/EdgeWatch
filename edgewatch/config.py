@@ -95,7 +95,7 @@ class IdentityConfig:
 
 @dataclass(frozen=True)
 class AppConfig:
-    version: str = "0.5.4"
+    version: str = "0.5.5"
     sample_interval_seconds: int = 3
     history_interval_seconds: int = 10
     security_interval_seconds: int = 30
