@@ -1,0 +1,75 @@
+[app]
+sample_interval_seconds = 5
+history_interval_seconds = 15
+security_interval_seconds = 30
+maintenance_interval_seconds = 900
+retention_days = 14
+history_points_max = 2880
+timezone = "UTC"
+data_dir = "/var/lib/edgewatch"
+runtime_dir = "/run/edgewatch"
+secrets_path = "/etc/edgewatch/secrets.toml"
+# Environment-specific names, addresses, domains, and topology live here.
+site_config_path = "/etc/edgewatch/site.toml"
+
+[web]
+# Keep this loopback-only. Caddy is the authenticated HTTPS entry point.
+bind_host = "127.0.0.1"
+bind_port = 8765
+allowed_hosts = ["127.0.0.1", "localhost"]
+
+[identity]
+provider = "Microsoft Entra ID"
+directory_name = ""
+tenant_id = ""
+application_name = "EdgeWatch"
+client_id = ""
+access_label = "Assigned enterprise application user"
+session_lifetime = ""
+session_refresh = ""
+
+[monitoring]
+primary_interface = "eth0"
+monthly_transfer_gb = 2000
+services = [
+  "caddy",
+  "wg-quick@wg0",
+  "ssh",
+  "edgewatch-agent",
+  "edgewatch-web",
+  "edgewatch-monitor-users",
+]
+wireguard_interfaces = ["wg0"]
+peer_stale_seconds = 180
+flow_recent_seconds = 60
+expected_public_hostnames = []
+
+[security]
+allowed_public_tcp_ports = [22, 80, 443]
+allowed_public_udp_ports = [443, 51820]
+failed_ssh_warn = 10
+connection_warn = 250
+disk_warn_percent = 85
+inode_warn_percent = 85
+memory_warn_percent = 90
+tls_warn_days = 21
+
+[geoip]
+city_database_path = "/var/lib/GeoIP/GeoLite2-City.mmdb"
+asn_database_path = "/var/lib/GeoIP/GeoLite2-ASN.mmdb"
+warn_age_days = 28
+
+[linode]
+enabled = false
+linode_id = 0
+firewall_id = 0
+check_interval_seconds = 300
+require_inbound_drop = true
+
+[notifications]
+enabled = false
+provider = "ntfy"
+minimum_severity = "high"
+cooldown_seconds = 900
+recovery_notifications = true
+dashboard_url = ""

@@ -1,0 +1,42 @@
+[Unit]
+Description=EdgeWatch privileged metrics collector
+Documentation=file:/opt/edgewatch/current/README.md
+After=network-online.target systemd-journald.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+Group=edgewatch
+UMask=0007
+RuntimeDirectory=edgewatch
+RuntimeDirectoryMode=0750
+WorkingDirectory=/opt/edgewatch/current
+ExecStart=/opt/edgewatch/current/venv/bin/python -m edgewatch.agent --config /etc/edgewatch/config.toml
+Restart=on-failure
+RestartSec=5s
+TimeoutStopSec=15s
+
+NoNewPrivileges=true
+CapabilityBoundingSet=CAP_NET_ADMIN CAP_DAC_READ_SEARCH
+AmbientCapabilities=CAP_NET_ADMIN CAP_DAC_READ_SEARCH
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectKernelLogs=true
+ProtectControlGroups=true
+ProtectClock=true
+ProtectHostname=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+RestrictNamespaces=true
+LockPersonality=true
+SystemCallArchitectures=native
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 AF_NETLINK
+ReadWritePaths=/var/lib/edgewatch /run/edgewatch
+
+[Install]
+WantedBy=multi-user.target

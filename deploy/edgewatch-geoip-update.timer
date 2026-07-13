@@ -1,0 +1,11 @@
+[Unit]
+Description=Weekly EdgeWatch GeoIP database update
+
+[Timer]
+OnCalendar=weekly
+RandomizedDelaySec=6h
+Persistent=true
+Unit=edgewatch-geoip-update.service
+
+[Install]
+WantedBy=timers.target

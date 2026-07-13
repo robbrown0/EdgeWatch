@@ -1,0 +1,54 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyd
+*.so
+.venv/
+.venv-*/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Runtime data and secrets
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+secrets.toml
+!secrets.toml.example
+site.toml
+!deploy/site.toml
+!deploy/site.toml.example
+edgewatch-site-*.toml
+*.log
+*.pid
+
+# Large local map archives
+*.pmtiles
+
+# Build and release output
+build/
+dist/
+*.egg-info/
+*.tar.gz
+*.zip
+MANIFEST.sha256
+visual/
+.integration/
+
+# Editors and operating systems
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*~
+
+# Local site-specific configuration
+deploy/site.toml

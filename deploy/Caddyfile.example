@@ -1,0 +1,54 @@
+# Replace monitor.example.com and the local oauth2-proxy address as needed.
+# oauth2-proxy must be configured with set_xauthrequest = true so Caddy can
+# copy the authenticated identity headers into the request sent to EdgeWatch.
+monitor.example.com {
+    encode zstd gzip
+
+    route {
+        # Never trust authentication identity headers supplied by an internet client.
+        request_header -X-Auth-Request-User
+        request_header -X-Auth-Request-Email
+        request_header -X-Auth-Request-Groups
+        request_header -X-Auth-Request-Preferred-Username
+        request_header -X-Forwarded-Email
+        request_header -X-Forwarded-User
+        request_header -Remote-User
+
+        @oauth2 path /oauth2/*
+        handle @oauth2 {
+            reverse_proxy 127.0.0.1:4180
+        }
+
+        forward_auth 127.0.0.1:4180 {
+            uri /oauth2/auth
+            copy_headers X-Auth-Request-User X-Auth-Request-Email X-Auth-Request-Groups X-Auth-Request-Preferred-Username
+        }
+
+        @monitorUsers path /api/v1/monitor-users /api/v1/monitor-users/heartbeat
+        handle @monitorUsers {
+            reverse_proxy 127.0.0.1:8766
+        }
+
+        handle {
+            reverse_proxy 127.0.0.1:8765
+        }
+    }
+
+    header {
+        Strict-Transport-Security "max-age=31536000"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        Referrer-Policy "no-referrer"
+        Permissions-Policy "camera=(), microphone=(), geolocation=()"
+        -Server
+    }
+
+    log {
+        output file /var/log/caddy/edgewatch-access.log {
+            roll_size 10MiB
+            roll_keep 5
+            roll_keep_for 168h
+        }
+        format json
+    }
+}

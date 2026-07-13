@@ -1,0 +1,9 @@
+Installed: 2026-07-12T04:24:40+00:00
+MapLibre GL JS: 5.24.0
+PMTiles JS: 4.4.1
+Protomaps basemap styles: 5.7.2
+pmtiles CLI: 1.31.0
+Source: https://build.protomaps.com/20260711.pmtiles
+Global maximum zoom: 8
+Archive bytes: 548711722
+Archive SHA-256: c9e415c90aaa1a137517786201f40e695e633b6467417a041a4a14f229f826b6

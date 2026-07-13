@@ -1,0 +1,40 @@
+[Unit]
+Description=EdgeWatch active monitor-user roster
+Documentation=file:/opt/edgewatch/current/README.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=edgewatch
+Group=edgewatch
+UMask=0077
+WorkingDirectory=/opt/edgewatch/current
+ExecStart=/opt/edgewatch/current/venv/bin/python -m edgewatch.monitor_users
+Restart=on-failure
+RestartSec=5s
+TimeoutStopSec=10s
+
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectKernelLogs=true
+ProtectControlGroups=true
+ProtectClock=true
+ProtectHostname=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+RestrictNamespaces=true
+LockPersonality=true
+SystemCallArchitectures=native
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+ProtectProc=invisible
+ProcSubset=pid
+ReadOnlyPaths=/opt/edgewatch
+
+[Install]
+WantedBy=multi-user.target

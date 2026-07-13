@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#07111f">
+  <title>EdgeWatch Command Center</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/vendor/maplibre-gl.css?v=5.24.0">
+  <link rel="stylesheet" href="/static/app.css?v=0.5.4">
+  <script src="/static/vendor/maplibre-gl-csp.js?v=5.24.0" defer></script>
+  <script src="/static/vendor/pmtiles.js?v=4.4.1" defer></script>
+  <script src="/static/vendor/basemaps.js?v=5.7.2" defer></script>
+  <script src="/static/maplibre-edgewatch.js?v=0.5.4" defer></script>
+  <script src="/static/app.js?v=0.5.4" defer></script>
+</head>
+<body>
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand-wrap">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 48 48"><path d="M24 3 43 12v12c0 11-7.7 18-19 21C12.7 42 5 35 5 24V12L24 3Z"/><path d="M14 26h6l3-10 5 17 3-7h4"/></svg>
+        </div>
+        <div>
+          <p class="eyebrow">PLEXEDGE INFRASTRUCTURE</p>
+          <h1>EdgeWatch <span>Command Center</span></h1>
+        </div>
+      </div>
+      <div class="top-actions">
+        <div class="live-pill"><span class="pulse-dot"></span><span id="liveLabel">Connecting</span></div>
+                <button
+          class="header-icon-button edgewatch-settings-button"
+          id="settingsButton"
+          type="button"
+          aria-label="Open EdgeWatch settings"
+          title="EdgeWatch settings"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M19.14 12.94a7.8 7.8 0 0 0 .05-.94 7.8 7.8 0 0 0-.05-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.61-.22l-2.39.96a7.3 7.3 0 0 0-1.63-.95L14.38 2.8a.5.5 0 0 0-.49-.4h-3.84a.5.5 0 0 0-.49.4l-.36 2.51c-.58.25-1.12.57-1.63.95L5.18 5.3a.5.5 0 0 0-.61.22L2.65 8.84a.5.5 0 0 0 .12.64l2.03 1.58a7.8 7.8 0 0 0-.05.94c0 .32.02.63.05.94l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32a.5.5 0 0 0 .61.22l2.39-.96c.51.38 1.05.7 1.63.95l.36 2.51a.5.5 0 0 0 .49.4h3.84a.5.5 0 0 0 .49-.4l.36-2.51c.58-.25 1.12-.57 1.63-.95l2.39.96a.5.5 0 0 0 .61-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58ZM12 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7Z"/>
+          </svg>
+        </button>
+<button
+          class="account-button account-icon-button edgewatch-account-button"
+          id="accountButton"
+          type="button"
+          aria-label="Open signed-in account details"
+          title="Signed in with Microsoft Entra ID"
+        >
+          <span
+            class="account-avatar account-person-icon"
+            id="accountAvatar"
+            aria-hidden="true"
+          >
+            <svg viewBox="0 0 24 24">
+              <path d="M12 12a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9Zm0 2c-5 0-9 2.5-9 5.5V22h18v-2.5C21 16.5 17 14 12 14Z"/>
+            </svg>
+          </span>
+          <span class="account-copy">
+            <strong id="accountName">Signed in</strong>
+            <small id="accountEmail">Microsoft Entra ID</small>
+          </span>
+        </button>
+        <button class="ghost-button" id="refreshButton" type="button">Refresh now</button>
+      </div>
+    </header>
+
+    <section class="hero-grid">
+      <article class="hero-card posture-card">
+        <div class="card-label">Security posture</div>
+        <div class="risk-wrap">
+          <div class="risk-ring" id="riskRing">
+            <div class="risk-ring-inner"><strong id="riskScore">--</strong><span>risk</span></div>
+          </div>
+          <div class="risk-copy">
+            <span class="status-chip" id="riskLevel">Loading</span>
+            <h2 id="postureHeadline">Reading the edge</h2>
+            <p id="postureDetail">Collector data will appear in a moment.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="hero-card traffic-card">
+        <div class="card-head traffic-card-head">
+          <div>
+            <div class="card-label">Current network traffic</div>
+            <h2 id="interfaceName">eth0</h2>
+            <small class="traffic-sample-note" id="trafficSampleNote">
+              Latest approximately 5 second sample
+            </small>
+          </div>
+
+          <label class="traffic-range-control">
+            <span>Chart range</span>
+            <select id="historyRange" aria-label="Traffic chart range">
+              <option value="30">30 min</option>
+              <option value="60" selected>1 hour</option>
+              <option value="360">6 hours</option>
+              <option value="1440">24 hours</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="rate-row traffic-rate-row">
+          <div>
+            <span class="direction down">↓</span>
+            <strong id="rxRate">0 Mbps</strong>
+            <small>Inbound now</small>
+          </div>
+
+          <div>
+            <span class="direction up">↑</span>
+            <strong id="txRate">0 Mbps</strong>
+            <small>Outbound now</small>
+          </div>
+        </div>
+
+        <div
+          class="traffic-comparison"
+          aria-label="Measured traffic compared with Plex estimates"
+        >
+          <div>
+            <span>30s average egress</span>
+            <strong id="measuredOutbound">0 Mbps</strong>
+          </div>
+
+          <div>
+            <span>Active remote Plex estimate</span>
+            <strong id="activePlexEstimate">0 Mbps</strong>
+          </div>
+
+          <div>
+            <span>Paused remote Plex estimate</span>
+            <strong id="pausedPlexEstimate">0 Mbps</strong>
+          </div>
+        </div>
+        <small class="traffic-comparison-note" id="trafficComparisonNote">
+          Remote-only Plex comparison. Measured traffic is averaged over 30 seconds; Plex reports an estimated stream bitrate.
+        </small>
+
+        <div class="chart-wrap">
+          <canvas
+            id="trafficChart"
+            aria-label="Network traffic history chart"
+          ></canvas>
+        </div>
+      </article>
+
+      <article class="hero-card activity-card">
+        <div class="card-label">Edge activity now</div>
+        <div class="activity-grid">
+          <div><strong id="streamHero">0</strong><span>active streams</span></div>
+          <div><strong id="peerHero">0</strong><span>public peers</span></div>
+          <div><strong id="findingHero">0</strong><span>findings</span></div>
+          <div><strong id="alertHero">Off</strong><span>push alerts</span></div>
+        </div>
+        <div class="activity-footer"><span id="monthUsage">0 GB this month</span><span id="monthlyLimit">2 TB limit</span></div>
+        <div class="progress-track"><div class="progress-fill" id="transferFill"></div></div>
+      </article>
+    </section>
+
+    <section class="metric-strip" aria-label="System metrics">
+      <article><span>CPU</span><strong id="cpuMetric">--</strong><div class="mini-meter"><i id="cpuMeter"></i></div></article>
+      <article><span>Memory</span><strong id="memoryMetric">--</strong><div class="mini-meter"><i id="memoryMeter"></i></div></article>
+      <article><span>Disk</span><strong id="diskMetric">--</strong><div class="mini-meter"><i id="diskMeter"></i></div></article>
+      <article><span>Inodes</span><strong id="inodeMetric">--</strong><div class="mini-meter"><i id="inodeMeter"></i></div></article>
+      <article><span>Load</span><strong id="loadMetric">--</strong><small>1 minute</small></article>
+      <article><span>TCP</span><strong id="connectionMetric">--</strong><small>established</small></article>
+      <article><span>WireGuard</span><strong id="wgMetric">--</strong><small>peers online</small></article>
+      <article><span>Uptime</span><strong id="uptimeMetric">--</strong><small id="hostnameMetric">VPS</small></article>
+    </section>
+
+    <main class="dashboard-grid">
+      <section class="panel span-8 map-panel">
+        <div class="panel-head map-panel-head">
+          <div><p class="eyebrow">NEAR REAL-TIME</p><h2>Where connections are coming from</h2></div>
+          <div class="map-head-actions">
+            <div class="segmented-control" id="mapModeControl" aria-label="Map view">
+              <button type="button" class="active" data-map-mode="world" aria-pressed="true">World map</button>
+              <button type="button" data-map-mode="topology" aria-pressed="false">Edge topology</button>
+            </div>
+            <div class="segmented-control" id="flowScopeControl" aria-label="Flow time scope">
+              <button type="button" class="active" data-flow-scope="active" aria-pressed="true">Active</button>
+              <button type="button" id="recentScopeButton" data-flow-scope="recent" aria-pressed="false">Last 60s</button>
+            </div>
+            <span class="summary-badge" id="mapSummary">Waiting for flows</span>
+          </div>
+        </div>
+        <div class="flow-metric-strip operational-metric-strip" aria-label="Current remote client activity">
+            <button type="button" class="metric-list-card" id="remoteClientCard"><span>Remote clients</span><strong id="remoteClientCount">0</strong><small>View client list</small></button>
+            <button type="button" class="metric-list-card" id="remoteStreamCard" title="Public remote clients with active Plex playback"><span>Remote streams</span><strong id="streamingClientCount">0</strong><small>View stream clients</small></button>
+            <div><span>Admin</span><strong id="adminSessionCount">0</strong></div>
+            <div><span>Services</span><strong id="serviceConnectionCount">0</strong></div>
+            <div><span>Review</span><strong id="reviewConnectionCount">0</strong></div>
+          </div>
+
+          <details class="advanced-network-details">
+            <summary>Advanced network totals</summary>
+            <div class="flow-metric-strip advanced-metric-strip" aria-label="Advanced network totals">
+          <div><span>TCP sockets</span><strong id="tcpSocketCount">0</strong></div>
+          <div><span>Public connections</span><strong id="publicConnectionCount">0</strong></div>
+          <div><span>Unique public IPs</span><strong id="uniquePublicCount">0</strong></div>
+          <div><span>Internal connections</span><strong id="internalConnectionCount">0</strong></div>
+          <div><span>Loopback</span><strong id="localConnectionCount">0</strong></div>
+        </div>
+          </details>
+        <div class="map-stage">
+          <div id="mapZoomControls" class="map-zoom-controls" aria-label="Map zoom controls"></div>
+          <div
+            id="connectionMapLibre"
+            class="connection-maplibre hidden"
+            role="region"
+            aria-label="Interactive map of active and recently observed public network connections"
+          ></div>
+          <svg id="connectionMap" viewBox="0 0 1000 500" role="img" aria-label="World map of active and recently observed public network connections">
+            <defs>
+              <radialGradient id="oceanGlow" cx="50%" cy="48%" r="70%"><stop offset="0" stop-color="#0b263d"/><stop offset="1" stop-color="#061321"/></radialGradient>
+              <filter id="markerGlow"><feGaussianBlur stdDeviation="4" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+              <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="5" stdDeviation="7" flood-color="#000" flood-opacity=".45"/></filter>
+            </defs>
+            <rect class="map-ocean" x="0" y="0" width="1000" height="500" rx="18"/>
+            <g class="map-gridlines">
+              <path d="M0 83.3H1000M0 166.7H1000M0 250H1000M0 333.3H1000M0 416.7H1000M166.7 0V500M333.3 0V500M500 0V500M666.7 0V500M833.3 0V500"/>
+            </g>
+            <image class="world-map-image" href="/static/world-map.svg" x="0" y="0" width="1000" height="500" preserveAspectRatio="none"/>
+            <g id="mapLinks"></g>
+            <g id="mapMarkers"></g>
+            <g id="mapLabels"></g>
+          </svg>
+          <svg id="topologyMap" class="topology-map hidden" viewBox="0 0 1000 500" role="img" aria-label="EdgeWatch Caddy WireGuard and media service topology">
+            <defs>
+              <linearGradient id="topologyNodeFill" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#102b43"/><stop offset="1" stop-color="#091a2c"/></linearGradient>
+              <filter id="topologyGlow"><feGaussianBlur stdDeviation="5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+              <marker id="topologyArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z"/></marker>
+            </defs>
+            <rect class="map-ocean" x="0" y="0" width="1000" height="500" rx="18"/>
+            <g class="map-gridlines"><path d="M0 125H1000M0 250H1000M0 375H1000M250 0V500M500 0V500M750 0V500"/></g>
+            <g id="topologyLinks"></g>
+            <g id="topologyNodes"></g>
+          </svg>
+          <div class="map-empty" id="mapEmpty">Install the local GeoLite2 databases to place public IPs on the world map.</div>
+          <div class="map-legend" id="mapLegend">
+            <span><i class="legend-dot origin"></i>EdgeWatch VPS</span>
+            <span><i class="legend-dot inbound"></i>Inbound</span>
+            <span><i class="legend-dot outbound"></i>Outbound</span>
+            <span><i class="legend-dot mixed"></i>Mixed</span>
+            <span><i class="legend-dot recent"></i>Recently ended</span>
+          </div>
+        </div>
+        <p class="map-note" id="mapNote">Basemap boundaries are bundled locally. Locations are approximate network registration areas, not physical addresses.</p>
+      </section>
+
+      <section class="panel span-4 flow-panel">
+        <div class="panel-head flow-panel-head">
+          <div><p class="eyebrow">FLOW INTELLIGENCE</p><h2 id="flowTitle">Who is connected now</h2></div>
+          <span class="summary-badge" id="flowSummary">Current</span>
+        </div>
+        <div class="segmented-control flow-kind-control" id="flowKindControl" aria-label="Flow category">
+          <button type="button" class="active" data-flow-kind="public" aria-pressed="true">Remote</button>
+          <button type="button" data-flow-kind="internal" aria-pressed="false">Internal</button>
+        </div>
+        <p class="flow-context" id="flowContext"></p>
+        <div class="flow-list" id="flowList"></div>
+      </section>
+
+      <section class="panel span-12 plex-panel">
+        <div class="panel-head">
+          <div><p class="eyebrow">PLEXEDGE LIVE</p><h2>Streaming activity</h2></div>
+          <div class="badge-row"><span class="summary-badge" id="plexServerSummary">0/0 servers</span><span class="summary-badge" id="plexModeSummary">No streams</span></div>
+        </div>
+        <div class="stream-summary" id="streamSummary"></div>
+        <div class="stream-grid" id="streamGrid"></div>
+      </section>
+
+      <section class="panel span-7">
+        <div class="panel-head"><div><p class="eyebrow">DEFENSE IN DEPTH</p><h2>Protection layers</h2></div><span class="summary-badge" id="protectionSummary">Assessing</span></div>
+        <div class="control-grid" id="controlGrid"></div>
+      </section>
+
+      <section class="panel span-5">
+        <div class="panel-head"><div><p class="eyebrow">SECURITY</p><h2>Findings and actions</h2></div><span class="summary-badge" id="findingSummary">0 active</span></div>
+        <div class="insight-list" id="insightList"></div>
+      </section>
+
+      <section class="panel span-7">
+        <div class="panel-head"><div><p class="eyebrow">OPERATIONS</p><h2>Service and path health</h2></div><span class="summary-badge" id="serviceSummary">Checking</span></div>
+        <div class="service-grid" id="serviceGrid"></div>
+        <div class="subsection-title"><span>Endpoint and TLS checks</span><span id="endpointSummary"></span></div>
+        <div class="endpoint-list" id="endpointList"></div>
+      </section>
+
+      <section class="panel span-5">
+        <div class="panel-head"><div><p class="eyebrow">TUNNEL</p><h2>WireGuard peers</h2></div><span class="summary-badge" id="peerSummary">Checking</span></div>
+        <div class="peer-list" id="peerList"></div>
+      </section>
+
+      <section class="panel span-4">
+        <div class="panel-head"><div><p class="eyebrow">ACCESS</p><h2>SSH activity</h2></div><span class="summary-badge">15 min</span></div>
+        <div class="ssh-stats"><div><span>Failed</span><strong id="sshFailed">0</strong></div><div><span>Accepted</span><strong id="sshAccepted">0</strong></div></div>
+        <div class="table-title">Top failed sources</div><div class="compact-table" id="sshSources"></div>
+      </section>
+
+      <section class="panel span-4">
+        <div class="panel-head"><div><p class="eyebrow">EXPOSURE</p><h2>Listening sockets</h2></div><span class="summary-badge" id="listenerSummary">Checking</span></div>
+        <div class="listener-list" id="listenerTable"></div>
+      </section>
+
+      <section class="panel span-4">
+        <div class="panel-head"><div><p class="eyebrow">CLOUD EDGE</p><h2>Linode firewall</h2></div><span class="summary-badge" id="linodeSummary">Optional</span></div>
+        <div id="linodeCard"></div>
+      </section>
+
+      <section class="panel span-12 acknowledged-panel" id="acknowledgedPanel" hidden>
+        <div class="panel-head">
+          <div><p class="eyebrow">ACKNOWLEDGED</p><h2>Muted findings</h2></div>
+          <span class="summary-badge" id="acknowledgedSummary">0 muted</span>
+        </div>
+        <p class="panel-intro">These findings remain active and continue to affect the risk score, but repeat timeline entries and push notifications are muted.</p>
+        <div class="acknowledged-list" id="acknowledgedList"></div>
+      </section>
+
+      <section class="panel span-12 event-panel">
+        <div class="panel-head"><div><p class="eyebrow">TIMELINE</p><h2>Recent security events</h2></div><span class="summary-badge" id="lastUpdated">Waiting for data</span></div>
+        <div class="event-list" id="eventList"></div>
+      </section>
+    </main>
+
+    <footer><span>EdgeWatch 0.5.4</span><span>Protected dashboard with audited finding controls</span><span id="footerStatus">Collector status unknown</span></footer>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <div
+    id="metricDrawerBackdrop"
+    class="metric-drawer-backdrop"
+    hidden
+  ></div>
+
+  <aside
+    id="metricDrawer"
+    class="metric-drawer"
+    role="dialog"
+    aria-modal="true"
+    aria-hidden="true"
+    aria-labelledby="metricDrawerTitle"
+    hidden
+  >
+    <div class="metric-drawer-handle"></div>
+
+    <header class="metric-drawer-header">
+      <div>
+        <span id="metricDrawerEyebrow">CONNECTION DETAILS</span>
+        <h2 id="metricDrawerTitle">Details</h2>
+        <p id="metricDrawerSubtitle"></p>
+      </div>
+
+      <button
+        id="metricDrawerClose"
+        class="metric-drawer-close"
+        type="button"
+        aria-label="Close details"
+      >
+        &times;
+      </button>
+    </header>
+
+    <div id="metricDrawerBody" class="metric-drawer-body"></div>
+  </aside>
+
+</body>
+</html>

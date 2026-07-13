@@ -1,0 +1,119 @@
+# Example private environment overlay. All names, addresses, and domains below
+# are documentation examples and are not real infrastructure.
+
+[web]
+allowed_hosts = ["monitor.example.com", "127.0.0.1", "localhost"]
+
+[monitoring]
+expected_public_hostnames = [
+  "monitor.example.com",
+  "media-a.example.com",
+  "media-b.example.com",
+  "requests.example.com",
+]
+
+[notifications]
+dashboard_url = "https://monitor.example.com"
+
+[service_ports]
+"5055" = "Request service"
+
+[[peer_aliases]]
+name = "Media Node A"
+allowed_ip = "10.200.0.2/32"
+scope = "private"
+
+[[peer_aliases]]
+name = "Media Node B"
+allowed_ip = "10.200.0.4/32"
+scope = "private"
+
+# Public aliases are applied only when a matching connection is actually seen.
+[[peer_aliases]]
+name = "Known Remote Service"
+allowed_ip = "198.51.100.54/32"
+scope = "public"
+
+[[plex_servers]]
+name = "Media Node A"
+url = "https://10.200.0.2:32400"
+timeout_seconds = 4
+tls_verify = false
+
+[[plex_servers]]
+name = "Media Node B"
+url = "https://10.200.0.4:32400"
+timeout_seconds = 4
+tls_verify = false
+
+[[url_checks]]
+name = "EdgeWatch public"
+url = "https://monitor.example.com"
+timeout_seconds = 4
+tls_verify = true
+expected_status_min = 200
+expected_status_max = 499
+certificate_warn_days = 21
+
+[[url_checks]]
+name = "Media Node A public"
+url = "https://media-a.example.com/identity"
+timeout_seconds = 4
+tls_verify = true
+expected_status_min = 200
+expected_status_max = 499
+certificate_warn_days = 21
+
+[[url_checks]]
+name = "Media Node A tunnel"
+url = "https://10.200.0.2:32400/identity"
+timeout_seconds = 4
+tls_verify = false
+expected_status_min = 200
+expected_status_max = 499
+
+[[url_checks]]
+name = "Request Service public"
+url = "https://requests.example.com"
+timeout_seconds = 4
+tls_verify = true
+expected_status_min = 200
+expected_status_max = 499
+certificate_warn_days = 21
+
+[[caddy_activity_sources]]
+name = "Media Node A"
+log_path = "/var/log/caddy/media-a-access.log"
+hosts = ["media-a.example.com"]
+kind = "plex"
+label = "Plex request"
+
+[[caddy_activity_sources]]
+name = "Request Service"
+log_path = "/var/log/caddy/requests-access.log"
+hosts = ["requests.example.com"]
+kind = "request"
+label = "Request service"
+
+[[caddy_activity_sources]]
+name = "EdgeWatch"
+log_path = "/var/log/caddy/edgewatch-access.log"
+hosts = ["monitor.example.com"]
+kind = "edgewatch"
+label = "EdgeWatch dashboard"
+
+[[topology_services]]
+name = "Media Node A"
+eyebrow = "MEDIA BACKEND"
+peer_name = "Media Node A"
+check_names = ["Media Node A public", "Media Node A tunnel"]
+path = "wireguard"
+link_label = "Plex"
+
+[[topology_services]]
+name = "Request Service"
+eyebrow = "APPLICATION"
+peer_name = "Media Node A"
+check_names = ["Request Service public"]
+path = "wireguard"
+link_label = "HTTPS"

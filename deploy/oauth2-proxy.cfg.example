@@ -1,0 +1,21 @@
+# Minimal EdgeWatch-oriented oauth2-proxy settings. Add your provider-specific
+# client ID, client secret, cookie secret, tenant issuer, and access policy.
+http_address = "127.0.0.1:4180"
+reverse_proxy = true
+set_xauthrequest = true
+pass_user_headers = true
+cookie_secure = true
+cookie_httponly = true
+cookie_samesite = "lax"
+email_domains = ["*"]
+redirect_url = "https://monitor.example.com/oauth2/callback"
+provider = "oidc"
+oidc_issuer_url = "https://login.microsoftonline.com/TENANT_ID/v2.0"
+client_id = "REPLACE"
+# client_secret = "REPLACE"
+# cookie_secret = "REPLACE_WITH_32_BYTE_BASE64_SECRET"
+
+# These non-secret settings are also displayed in the EdgeWatch account drawer.
+# The 0.5.4 installer can discover them from this oauth2-proxy configuration.
+cookie_expire = "8h"
+cookie_refresh = "1h"

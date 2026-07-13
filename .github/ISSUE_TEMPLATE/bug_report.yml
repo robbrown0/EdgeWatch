@@ -1,0 +1,46 @@
+name: Bug report
+description: Report reproducible incorrect EdgeWatch behavior
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Do not include secrets, private topics, tokens, cookies, unredacted IP inventories, or production databases.
+  - type: input
+    id: version
+    attributes:
+      label: EdgeWatch version
+      placeholder: 0.5.4
+    validations:
+      required: true
+  - type: input
+    id: platform
+    attributes:
+      label: Ubuntu and Python versions
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: Describe expected and actual behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Sanitized diagnostics
+      description: Include relevant status or log excerpts after removing private data.
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Data safety
+      options:
+        - label: I removed credentials, tokens, cookies, private topic names, and private network data.
+          required: true
