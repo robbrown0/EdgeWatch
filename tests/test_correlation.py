@@ -2,7 +2,10 @@ from __future__ import annotations
 
 import unittest
 
-from edgewatch.correlation import correlate_plex_activity
+from edgewatch.correlation import (
+    annotate_connection_profiles,
+    correlate_plex_activity,
+)
 
 
 class CorrelationTests(unittest.TestCase):
@@ -71,6 +74,88 @@ class CorrelationTests(unittest.TestCase):
         self.assertEqual(profile.account_name, "")
         self.assertEqual(profile.person_name, "")
         self.assertEqual(profile.confidence, "unknown")
+
+    def test_connection_collections_receive_profiles(self) -> None:
+        connections = {
+            "public_peers": [
+                {
+                    "ip": "198.51.100.20",
+                    "activity": {
+                        "kind": "plex_media",
+                        "client_identifier": "client-abc",
+                        "device_name": "Living Room Roku",
+                    },
+                }
+            ],
+            "recent_public_peers": [
+                {
+                    "ip": "198.51.100.20",
+                    "activity": {
+                        "kind": "plex",
+                        "client_identifier": "client-abc",
+                    },
+                }
+            ],
+        }
+
+        plex = {
+            "sessions": [
+                {
+                    "client_identifier": "client-abc",
+                    "user": "Alex",
+                    "user_id": "user-42",
+                    "player": "Living Room Roku",
+                }
+            ]
+        }
+
+        annotated = annotate_connection_profiles(
+            connections,
+            plex,
+        )
+
+        active_profile = annotated["public_peers"][0][
+            "connection_profile"
+        ]
+        recent_profile = annotated["recent_public_peers"][0][
+            "connection_profile"
+        ]
+
+        self.assertEqual(
+            active_profile["account_name"],
+            "Alex",
+        )
+        self.assertEqual(
+            active_profile["confidence"],
+            "confirmed",
+        )
+        self.assertEqual(
+            recent_profile["client_identifier"],
+            "client-abc",
+        )
+
+    def test_non_plex_activity_is_not_annotated(self) -> None:
+        connections = {
+            "public_peers": [
+                {
+                    "ip": "198.51.100.30",
+                    "activity": {
+                        "kind": "https",
+                        "client_identifier": "client-abc",
+                    },
+                }
+            ]
+        }
+
+        annotated = annotate_connection_profiles(
+            connections,
+            {"sessions": []},
+        )
+
+        self.assertNotIn(
+            "connection_profile",
+            annotated["public_peers"][0],
+        )
 
 
 if __name__ == "__main__":

@@ -77,3 +77,70 @@ def correlate_plex_activity(
             "Plex supplied the authenticated account for the active session.",
         ),
     )
+
+
+
+def annotate_connection_profiles(
+    connections: dict[str, Any],
+    plex: dict[str, Any],
+) -> dict[str, Any]:
+    sessions = [
+        session
+        for session in plex.get("sessions", [])
+        if isinstance(session, dict)
+    ]
+
+    annotated = dict(connections)
+
+    for collection_name in (
+        "public_peers",
+        "recent_public_peers",
+    ):
+        peers = connections.get(collection_name)
+
+        if not isinstance(peers, list):
+            continue
+
+        annotated_peers: list[object] = []
+
+        for peer in peers:
+            if not isinstance(peer, dict):
+                annotated_peers.append(peer)
+                continue
+
+            row = dict(peer)
+            activity = row.get("activity")
+
+            if not isinstance(activity, dict):
+                annotated_peers.append(row)
+                continue
+
+            activity_kind = str(
+                activity.get("kind") or ""
+            ).lower()
+
+            if not activity_kind.startswith("plex"):
+                annotated_peers.append(row)
+                continue
+
+            profile = correlate_plex_activity(
+                activity,
+                sessions,
+            )
+
+            row["connection_profile"] = {
+                "account_name": profile.account_name,
+                "account_id": profile.account_id,
+                "person_name": profile.person_name,
+                "device_name": profile.device_name,
+                "client_identifier": profile.client_identifier,
+                "service": profile.service,
+                "confidence": profile.confidence,
+                "evidence": list(profile.evidence),
+            }
+
+            annotated_peers.append(row)
+
+        annotated[collection_name] = annotated_peers
+
+    return annotated
