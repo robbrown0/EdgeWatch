@@ -55,7 +55,7 @@ class ContractCollector(Collector):
             "established": 2,
             "public_peer_count": 1,
             "public_interface_ips": ["203.0.113.10"],
-            "peers": [
+            "public_peers": [
                 {
                     "ip": "198.51.100.20",
                     "remote_port": 443,
@@ -66,6 +66,20 @@ class ContractCollector(Collector):
                     "first_seen": now_epoch,
                     "last_seen": now_epoch,
                     "geo": None,
+                    "activity": {
+                        "kind": "plex_media",
+                        "client_identifier": "client-abc",
+                    },
+                }
+            ],
+            "recent_public_peers": [
+                {
+                    "ip": "198.51.100.20",
+                    "connections": 2,
+                    "activity": {
+                        "kind": "plex_media",
+                        "client_identifier": "client-abc",
+                    },
                 }
             ],
             "top_processes": [{"name": "caddy", "connections": 2}],
@@ -76,7 +90,20 @@ class ContractCollector(Collector):
         return [{"name": "Media Node A", "online": True, "latest_handshake": "just now"}]
 
     def _plex(self):
-        return {"active_streams": 1, "transcodes": 0, "servers": [], "sessions": []}
+        return {
+            "active_streams": 1,
+            "transcodes": 0,
+            "servers": [],
+            "sessions": [
+                {
+                    "client_identifier": "client-abc",
+                    "user": "Alex",
+                    "user_id": "user-42",
+                    "player": "Living Room Roku",
+                    "state": "playing",
+                }
+            ],
+        }
 
     def _url_checks(self):
         return []
@@ -151,11 +178,14 @@ class CollectorContractTests(unittest.TestCase):
                 collector = ContractCollector(config, geoip_resolver=FakeGeoIP())
                 snapshot, sample = collector.collect()
 
-            self.assertEqual(snapshot["version"], "0.5.4")
+            self.assertEqual(snapshot["version"], "0.5.5")
             self.assertEqual(snapshot["system"]["hostname"], "linoleum")
             self.assertEqual(snapshot["network"]["interface"], "eth0")
             self.assertEqual(snapshot["network"]["connections"]["established"], 2)
             self.assertEqual(snapshot["plex"]["active_streams"], 1)
+            profile = snapshot["network"]["connections"]["public_peers"][0]["connection_profile"]
+            self.assertEqual(profile["confidence"], "confirmed")
+            self.assertEqual(profile["account_name"], "Alex")
             self.assertIn("coverage", snapshot["posture"])
             self.assertEqual(snapshot["topology"]["services"][0]["name"], "Media Node A")
             self.assertEqual(snapshot["topology"]["services"][0]["path"], "wireguard")

@@ -32,7 +32,7 @@ class NotificationManager:
             "Title": title[:120],
             "Priority": PRIORITY.get(severity, "default"),
             "Tags": TAGS.get(severity, "shield"),
-            "User-Agent": "EdgeWatch/0.5.4",
+            "User-Agent": "EdgeWatch/0.5.5",
             "Content-Type": "text/plain; charset=utf-8",
         }
         if self.config.dashboard_url:
@@ -61,7 +61,7 @@ class NotificationManager:
             return False, "Notifications are disabled or ntfy.url is missing"
         return self._send(
             "EdgeWatch notification test",
-            "EdgeWatch 0.5.4 can deliver push notifications from this VPS.",
+            "EdgeWatch 0.5.5 can deliver push notifications from this VPS.",
             "medium",
             "notification-test",
         )

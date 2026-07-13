@@ -1,41 +1,39 @@
-# EdgeWatch 0.5.4 release notes
+# EdgeWatch 0.5.5 release notes
 
 Release date: 2026-07-13
 
-## Configuration-driven environment metadata
+## Connection identity foundation
 
-Version 0.5.4 removes environment-specific names, domains, addresses, old ports, and topology labels from application source. EdgeWatch now reads private deployment metadata from `/etc/edgewatch/site.toml`.
+EdgeWatch now correlates recent Plex requests observed by Caddy with active Plex sessions using the stable Plex client identifier.  A connection is marked confirmed only when one request identifier matches exactly one active session.  IP addresses, usernames, and device labels alone never establish identity.
 
-The private overlay supports:
+Confirmed profiles may include:
 
-- public and private connection aliases with explicit scopes
-- Plex server definitions
-- public URL checks and expected DNS names
-- custom service port labels
-- Caddy access-log paths and host classification
-- topology service nodes and their health-check relationships
-- the public dashboard hostname
+- authenticated Plex account name and account identifier
+- Plex player or device name
+- stable client identifier
+- the evidence used to make the match
 
-Public aliases appear only when a matching connection is actually observed. They do not create permanent topology nodes.
+Ambiguous, duplicate, missing, and unmatched identifiers remain explicitly unknown.
 
-## Generic public distribution
+## Plex session metadata
 
-All bundled examples and tests now use reserved example domains, documentation networks, or generic names. Personal attribution, private hostnames, private topology labels, old public ports, and known real public addresses are absent from the public installer.
+The collector now retains safe Plex session identifiers required for correlation:
 
-A distribution sanitization test blocks reintroduction of the known private literals.
+- `Player.machineIdentifier`
+- `Player.playbackId`
+- `Player.playbackSessionId`
+- Plex user identifier
 
-## Map route persistence
+Tokens, cookies, and credentials are not added to snapshots.
 
-The offscreen route correction from 0.5.3 remains included. Active routes stay visible to the map edge when a client leaves the current viewport.
+## Dashboard enhancements
 
-## Microsoft Entra account details
+Remote connection cards and the connection detail drawer now surface confirmed Plex account context.  The drawer distinguishes confirmed identity from an observed but unmatched client identifier and explains why no account is asserted when evidence is insufficient.
 
-The authenticated account drawer continues to display safe tenant, application, and session metadata. Secrets, tokens, and cookies are excluded.
+## Installer and validation
+
+The installer now includes Node.js because frontend behavior tests execute JavaScript during pre-activation validation.  The release carries the prior map route persistence correction, remote Plex traffic reconciliation, Entra metadata display, private site overlay, and rollback behavior from 0.5.4.
 
 ## Upgrade behavior
 
-- Existing `config.toml`, `site.toml`, and `secrets.toml` are preserved.
-- The installer creates timestamped backups of both non-secret configuration files.
-- A neutral `site.toml` is created only when none exists.
-- Failed activation restores the previous release, unit files, and configuration.
-- The local PMTiles archive and databases remain preserved.
+The installer preserves and backs up existing configuration, private site metadata, secrets, databases, acknowledgement state, and the local PMTiles archive.  Activation failures restore the previous release and service configuration.

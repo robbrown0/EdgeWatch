@@ -91,7 +91,7 @@ trap rollback EXIT
 
 [[ $EUID -eq 0 ]] || fail "Run this installer with sudo."
 [[ -f "$ROOT_DIR/requirements.lock" ]] || fail "Run the installer from the extracted EdgeWatch package."
-[[ "$VERSION" == "0.5.4" ]] || fail "Unexpected package version: $VERSION"
+[[ "$VERSION" == "0.5.5" ]] || fail "Unexpected package version: $VERSION"
 
 UNIT_BACKUP_DIR="$(mktemp -d)"
 for unit in "${UNIT_NAMES[@]}"; do
@@ -108,7 +108,7 @@ log "Installing required Ubuntu packages"
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq
 apt-get install -y -qq \
-  python3 python3-venv python3-pip curl ca-certificates \
+  python3 python3-venv python3-pip nodejs curl ca-certificates \
   iproute2 wireguard-tools ufw apparmor-utils
 
 if apt-cache show geoipupdate >/dev/null 2>&1; then

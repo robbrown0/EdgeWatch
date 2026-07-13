@@ -1822,6 +1822,16 @@ function openRemoteClientsDrawer(snapshot) {
           )
         );
         copy.appendChild(node("small", "", ewConnectionActivity(snapshot, peer, category)));
+        const profile = peerConnectionProfile(peer);
+        if (profile.confidence === "confirmed") {
+          copy.appendChild(
+            node(
+              "small",
+              "confirmed-account-line",
+              `Plex account: ${profile.account_name || "confirmed"}`
+            )
+          );
+        }
         heading.appendChild(copy);
         heading.appendChild(node("span", `client-scope-chip ${category.key}`, category.label));
         card.appendChild(heading);
@@ -2121,6 +2131,30 @@ function peerActivity(peer) {
       : {};
 }
 
+function peerConnectionProfile(peer) {
+  return peer &&
+    peer.connection_profile &&
+    typeof peer.connection_profile === "object"
+      ? peer.connection_profile
+      : {};
+}
+
+function peerIdentityLabel(peer) {
+  const profile = peerConnectionProfile(peer);
+
+  if (profile.confidence === "confirmed") {
+    return profile.account_name
+      ? `Confirmed Plex account: ${profile.account_name}`
+      : "Confirmed Plex account";
+  }
+
+  if (profile.client_identifier) {
+    return "Plex client observed, account not confirmed";
+  }
+
+  return "Identity not established";
+}
+
 function peerDisplayName(peer) {
   const activity = peerActivity(peer);
 
@@ -2403,6 +2437,12 @@ function openPeerInsight(peer) {
           activity.host || "Not identified"
         )
       );
+      stats.appendChild(
+        insightStat(
+          "Identity",
+          peerIdentityLabel(peer)
+        )
+      );
 
       body.appendChild(stats);
 
@@ -2496,6 +2536,60 @@ function openPeerInsight(peer) {
 
           body.appendChild(card);
         }
+      }
+
+      const profile = peerConnectionProfile(peer);
+
+      if (profile.confidence === "confirmed") {
+        body.appendChild(
+          insightSection("Confirmed Plex identity")
+        );
+
+        const confirmed = node(
+          "div",
+          "connection-profile-card confirmed"
+        );
+        confirmed.appendChild(
+          node(
+            "strong",
+            "connection-profile-title",
+            profile.account_name || "Authenticated Plex account"
+          )
+        );
+        confirmed.appendChild(
+          node(
+            "span",
+            "connection-profile-device",
+            profile.device_name || "Plex client"
+          )
+        );
+
+        for (const [label, value] of [
+          ["Account ID", profile.account_id],
+          ["Client identifier", profile.client_identifier],
+          ["Confidence", "Confirmed by exact client identifier match"],
+        ]) {
+          const row = insightRow(label, value);
+          if (row) confirmed.appendChild(row);
+        }
+
+        const evidence = Array.isArray(profile.evidence)
+          ? profile.evidence
+          : [];
+        for (const item of evidence) {
+          confirmed.appendChild(
+            node("small", "connection-profile-evidence", item)
+          );
+        }
+        body.appendChild(confirmed);
+      } else if (profile.client_identifier) {
+        body.appendChild(
+          node(
+            "div",
+            "metric-detail-note connection-profile-unconfirmed",
+            "A Plex client identifier was observed, but EdgeWatch could not uniquely match it to one active Plex session. No account identity is asserted."
+          )
+        );
       }
 
       body.appendChild(

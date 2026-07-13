@@ -16,6 +16,6 @@ client_id = "REPLACE"
 # cookie_secret = "REPLACE_WITH_32_BYTE_BASE64_SECRET"
 
 # These non-secret settings are also displayed in the EdgeWatch account drawer.
-# The 0.5.4 installer can discover them from this oauth2-proxy configuration.
+# The 0.5.5 installer can discover them from this oauth2-proxy configuration.
 cookie_expire = "8h"
 cookie_refresh = "1h"

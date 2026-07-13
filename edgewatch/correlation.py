@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from typing import Any
 
 
@@ -15,19 +15,36 @@ class ConnectionProfile:
     confidence: str
     evidence: tuple[str, ...]
 
+    def to_dict(self) -> dict[str, object]:
+        value = asdict(self)
+        value["evidence"] = list(self.evidence)
+        return value
+
+
+def _text(value: object) -> str:
+    return str(value or "").strip()
+
 
 def correlate_plex_activity(
     activity: dict[str, Any],
     sessions: list[dict[str, Any]],
 ) -> ConnectionProfile:
-    client_identifier = str(activity.get("client_identifier") or "").strip()
+    """Correlate sanitized Caddy activity with one active Plex session.
+
+    A confirmed result requires an exact stable client identifier match and a
+    single matching active session. Usernames, IP addresses, and device labels
+    alone are intentionally insufficient.
+    """
+
+    client_identifier = _text(activity.get("client_identifier"))
+    fallback_device = _text(activity.get("device_name") or activity.get("device"))
 
     if not client_identifier:
         return ConnectionProfile(
             account_name="",
             account_id="",
             person_name="",
-            device_name=str(activity.get("device_name") or activity.get("device") or ""),
+            device_name=fallback_device,
             client_identifier="",
             service="plex",
             confidence="unknown",
@@ -37,7 +54,8 @@ def correlate_plex_activity(
     matches = [
         session
         for session in sessions
-        if str(session.get("client_identifier") or "").strip() == client_identifier
+        if _text(session.get("client_identifier")) == client_identifier
+        and _text(session.get("state")).lower() != "stopped"
     ]
 
     if len(matches) != 1:
@@ -50,7 +68,7 @@ def correlate_plex_activity(
             account_name="",
             account_id="",
             person_name="",
-            device_name=str(activity.get("device_name") or activity.get("device") or ""),
+            device_name=fallback_device,
             client_identifier=client_identifier,
             service="plex",
             confidence="unknown",
@@ -58,17 +76,11 @@ def correlate_plex_activity(
         )
 
     session = matches[0]
-
     return ConnectionProfile(
-        account_name=str(session.get("user") or ""),
-        account_id=str(session.get("user_id") or ""),
+        account_name=_text(session.get("user")),
+        account_id=_text(session.get("user_id")),
         person_name="",
-        device_name=str(
-            session.get("player")
-            or activity.get("device_name")
-            or activity.get("device")
-            or ""
-        ),
+        device_name=_text(session.get("player")) or fallback_device,
         client_identifier=client_identifier,
         service="plex",
         confidence="confirmed",
@@ -79,68 +91,43 @@ def correlate_plex_activity(
     )
 
 
-
 def annotate_connection_profiles(
     connections: dict[str, Any],
-    plex: dict[str, Any],
+    sessions: list[dict[str, Any]],
 ) -> dict[str, Any]:
-    sessions = [
-        session
-        for session in plex.get("sessions", [])
-        if isinstance(session, dict)
-    ]
+    """Attach conservative identity profiles to Plex-related public peers."""
 
-    annotated = dict(connections)
+    confirmed = 0
+    unknown = 0
 
-    for collection_name in (
-        "public_peers",
-        "recent_public_peers",
-    ):
-        peers = connections.get(collection_name)
-
-        if not isinstance(peers, list):
+    for collection_name in ("public_peers", "recent_public_peers"):
+        rows = connections.get(collection_name)
+        if not isinstance(rows, list):
             continue
 
-        annotated_peers: list[object] = []
-
-        for peer in peers:
-            if not isinstance(peer, dict):
-                annotated_peers.append(peer)
+        for row in rows:
+            if not isinstance(row, dict):
                 continue
-
-            row = dict(peer)
             activity = row.get("activity")
-
             if not isinstance(activity, dict):
-                annotated_peers.append(row)
                 continue
 
-            activity_kind = str(
-                activity.get("kind") or ""
-            ).lower()
-
-            if not activity_kind.startswith("plex"):
-                annotated_peers.append(row)
+            kind = _text(activity.get("kind")).lower()
+            if not kind.startswith("plex"):
                 continue
 
-            profile = correlate_plex_activity(
-                activity,
-                sessions,
-            )
+            profile = correlate_plex_activity(activity, sessions)
+            row["connection_profile"] = profile.to_dict()
+            if profile.confidence == "confirmed":
+                confirmed += 1
+                if profile.device_name and not row.get("display_name"):
+                    row["display_name"] = profile.device_name
+            else:
+                unknown += 1
 
-            row["connection_profile"] = {
-                "account_name": profile.account_name,
-                "account_id": profile.account_id,
-                "person_name": profile.person_name,
-                "device_name": profile.device_name,
-                "client_identifier": profile.client_identifier,
-                "service": profile.service,
-                "confidence": profile.confidence,
-                "evidence": list(profile.evidence),
-            }
-
-            annotated_peers.append(row)
-
-        annotated[collection_name] = annotated_peers
-
-    return annotated
+    connections["identity_summary"] = {
+        "confirmed": confirmed,
+        "unknown": unknown,
+        "method": "plex_client_identifier",
+    }
+    return connections

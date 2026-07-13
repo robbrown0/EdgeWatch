@@ -10,7 +10,7 @@ body:
     id: version
     attributes:
       label: EdgeWatch version
-      placeholder: 0.5.4
+      placeholder: 0.5.5
     validations:
       required: true
   - type: input

@@ -6,10 +6,11 @@ import argparse
 import os
 import re
 import shlex
-import subprocess
+import subprocess  # nosec B404
 import sys
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 from urllib.parse import urlsplit
 
 try:
@@ -242,7 +243,7 @@ def systemd_text() -> str:
     chunks: list[str] = []
     for command in commands:
         try:
-            result = subprocess.run(
+            result = subprocess.run(  # nosec B603
                 command,
                 capture_output=True,
                 text=True,

@@ -1,4 +1,4 @@
-# EdgeWatch 0.5.4 security review
+# EdgeWatch 0.5.5 security review
 
 ## Assessment
 

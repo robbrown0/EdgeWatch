@@ -86,8 +86,8 @@ Recommended settings:
 Attach release archives to a GitHub Release rather than committing them to the source branch:
 
 ```text
-edgewatch-0.5.4-install.tar.gz
-edgewatch-0.5.4-install.sha256
+edgewatch-0.5.5-install.tar.gz
+edgewatch-0.5.5-install.sha256
 ```
 
 Never attach the private site overlay or private audit report.

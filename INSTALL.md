@@ -1,27 +1,27 @@
-# EdgeWatch 0.5.4 installation guide
+# EdgeWatch 0.5.5 installation guide
 
-This guide covers a first installation on Ubuntu 22.04 or 24.04. Existing 0.5.3 systems should use [UPGRADE.md](UPGRADE.md).
+This guide covers a first installation on Ubuntu 22.04 or 24.04. Existing 0.5.4 systems should use [UPGRADE.md](UPGRADE.md).
 
 ## 1. Verify and extract the package
 
 Place these files in the same directory:
 
 ```text
-edgewatch-0.5.4-install.tar.gz
-edgewatch-0.5.4-install.sha256
+edgewatch-0.5.5-install.tar.gz
+edgewatch-0.5.5-install.sha256
 ```
 
 Verify the archive:
 
 ```bash
-sha256sum -c edgewatch-0.5.4-install.sha256
+sha256sum -c edgewatch-0.5.5-install.sha256
 ```
 
 Extract it:
 
 ```bash
-tar -xzf edgewatch-0.5.4-install.tar.gz
-cd edgewatch-0.5.4
+tar -xzf edgewatch-0.5.5-install.tar.gz
+cd edgewatch-0.5.5
 ```
 
 Optional internal manifest verification:
@@ -95,7 +95,7 @@ sudo nano /etc/edgewatch/config.toml
 Create the private environment overlay from the example:
 
 ```bash
-sudo cp /etc/edgewatch/site.toml.0.5.4.example /etc/edgewatch/site.toml
+sudo cp /etc/edgewatch/site.toml.0.5.5.example /etc/edgewatch/site.toml
 sudo chown root:edgewatch /etc/edgewatch/site.toml
 sudo chmod 0640 /etc/edgewatch/site.toml
 sudo nano /etc/edgewatch/site.toml

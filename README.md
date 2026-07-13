@@ -1,4 +1,4 @@
-# EdgeWatch Command Center 0.5.4
+# EdgeWatch Command Center 0.5.5
 
 EdgeWatch is a self-hosted Ubuntu edge monitoring dashboard for network activity, security posture, service health, WireGuard, Plex, public endpoints, Linode Cloud Firewall state, and ntfy notifications.
 
@@ -6,7 +6,7 @@ The browser application listens only on loopback. Caddy and oauth2-proxy provide
 
 ## Release highlight: private site configuration and sanitized source
 
-Version 0.5.4 removes deployment-specific names, domains, public addresses, private topology, Caddy log paths, and retired ports from application source. These values now belong in `/etc/edgewatch/site.toml`, a private overlay that is read on top of the general configuration.
+Version 0.5.5 removes deployment-specific names, domains, public addresses, private topology, Caddy log paths, and retired ports from application source. These values now belong in `/etc/edgewatch/site.toml`, a private overlay that is read on top of the general configuration.
 
 The topology view is configuration-driven. Public connection aliases are scoped and appear only when a matching connection is actually observed. No remote service or media node is permanently listed by JavaScript.
 
@@ -93,18 +93,18 @@ The only application-data mutation exposed by the main web service is the authen
 First installation or upgrade:
 
 ```bash
-sha256sum -c edgewatch-0.5.4-install.sha256
-tar -xzf edgewatch-0.5.4-install.tar.gz
-cd edgewatch-0.5.4
+sha256sum -c edgewatch-0.5.5-install.sha256
+tar -xzf edgewatch-0.5.5-install.tar.gz
+cd edgewatch-0.5.5
 sudo bash scripts/install.sh
 ```
 
-Existing EdgeWatch 0.5.3 installations can follow [UPGRADE.md](UPGRADE.md). The installer preserves `config.toml`, the private `site.toml` overlay, secrets, databases, acknowledgement state, and the local PMTiles archive.
+Existing EdgeWatch 0.5.4 installations can follow [UPGRADE.md](UPGRADE.md). The installer preserves `config.toml`, the private `site.toml` overlay, secrets, databases, acknowledgement state, and the local PMTiles archive.
 
 ## Documentation
 
 - [INSTALL.md](INSTALL.md): first installation and reverse-proxy integration
-- [UPGRADE.md](UPGRADE.md): exact 0.5.3 to 0.5.4 upgrade procedure
+- [UPGRADE.md](UPGRADE.md): exact 0.5.3 to 0.5.5 upgrade procedure
 - [CONFIGURATION.md](CONFIGURATION.md): configuration and secrets reference
 - [OPERATIONS.md](OPERATIONS.md): status, backup, restore, rollback, and troubleshooting
 - [ARCHITECTURE.md](ARCHITECTURE.md): components, data flow, and acknowledgement state machine
