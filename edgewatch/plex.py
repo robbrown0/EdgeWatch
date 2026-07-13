@@ -130,7 +130,11 @@ def parse_sessions(payload: dict[str, Any], server_name: str, now_epoch: int | N
             {
                 "server": server_name,
                 "session_id": str(session.get("id") or item.get("sessionKey") or item.get("ratingKey") or ""),
+                "client_identifier": str(player.get("machineIdentifier") or ""),
+                "playback_id": str(player.get("playbackId") or ""),
+                "playback_session_id": str(player.get("playbackSessionId") or ""),
                 "user": str(user.get("title") or "Unknown user"),
+                "user_id": str(user.get("id") or player.get("userID") or ""),
                 "title": title,
                 "subtitle": subtitle,
                 "media_type": str(item.get("type") or "media"),

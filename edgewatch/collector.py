@@ -25,6 +25,7 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from .config import AppConfig, Secrets, URLCheck
+from .correlation import annotate_connection_profiles
 from .geoip import GeoIPResolver
 from .linode import fetch_linode_firewall, fetch_linode_transfer
 from .parsers import (
@@ -1993,6 +1994,12 @@ class Collector:
             plex_future = executor.submit(self._plex)
             wireguard = wireguard_future.result()
             plex = plex_future.result()
+
+        connections = annotate_connection_profiles(
+            connections,
+            plex,
+        )
+        network["connections"] = connections
 
         if now_monotonic - self.last_url_checks_at >= self.config.security_interval_seconds or not self.last_url_checks:
             self.last_url_checks = self._url_checks()

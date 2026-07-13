@@ -17,8 +17,17 @@ class PlexTests(unittest.TestCase):
                     "grandparentTitle": "Edge Show",
                     "duration": 3600000,
                     "viewOffset": 1800000,
-                    "User": {"title": "Alex"},
-                    "Player": {"title": "Living Room Roku", "location": "wan", "state": "playing", "secure": True},
+                    "User": {"id": "user-42", "title": "Alex"},
+                    "Player": {
+                        "title": "Living Room Roku",
+                        "location": "wan",
+                        "state": "playing",
+                        "secure": True,
+                        "machineIdentifier": "client-abc",
+                        "playbackId": "playback-123",
+                        "playbackSessionId": "playback-session-456",
+                        "userID": "user-42",
+                    },
                     "Session": {"id": "abc", "bandwidth": 8000},
                     "TranscodeSession": {
                         "videoDecision": "transcode",
@@ -35,6 +44,10 @@ class PlexTests(unittest.TestCase):
         self.assertEqual(len(sessions), 1)
         session = sessions[0]
         self.assertEqual(session["user"], "Alex")
+        self.assertEqual(session["user_id"], "user-42")
+        self.assertEqual(session["client_identifier"], "client-abc")
+        self.assertEqual(session["playback_id"], "playback-123")
+        self.assertEqual(session["playback_session_id"], "playback-session-456")
         self.assertEqual(session["mode"], "Transcode")
         self.assertEqual(session["progress_percent"], 50.0)
         self.assertEqual(session["bandwidth_kbps"], 8000)
